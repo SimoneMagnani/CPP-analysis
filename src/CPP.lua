@@ -21,7 +21,7 @@ function init()
   matrix = create_matrix(30, 30, function () return 0 end)
   --matrix = create_matrix(30,30)
   init_controller(matrix)
-  init_checkpoints(1,33,50,80,87,88,89,90)
+  init_checkpoints(1,33,50,80,87,88,89,90,100)
 end
 
 
