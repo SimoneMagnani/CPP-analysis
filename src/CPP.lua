@@ -18,10 +18,10 @@ function init()
   robot.wheels.set_velocity(left_v,right_v)
   n_steps = 0
   robot.leds.set_all_colors("black")
-  matrix = create_matrix(30,30,0)
+  matrix = create_matrix(30, 30, function () return 0 end)
   --matrix = create_matrix(30,30)
   init_controller(matrix)
-  init_checkpoints(1,33,50,90)
+  init_checkpoints(1,33,50,80,87,88,89,90)
 end
 
 
