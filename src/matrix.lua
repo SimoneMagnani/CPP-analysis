@@ -50,11 +50,12 @@ function exec_on_each_cell_row(matrix, funct_cell, funct_row)
   end
 end
 
-function matrix_to_string(matrix, separator_cell, separator_row)
+function matrix_to_string(matrix, to_string, separator_cell, separator_row)
+  to_string = to_string or function(cell_val) return cell_val end
   separator_cell = separator_cell or " "
   separator_row = separator_row or "\n"
   row = ""
-  build_row = function (cell_val) row = row .. separator_cell .. cell_val end
+  build_row = function (cell_val) row = row .. separator_cell .. to_string(cell_val) end
   new_row = function () row = row .. separator_row end
   exec_on_each_cell_row(matrix, build_row, new_row)
   return row

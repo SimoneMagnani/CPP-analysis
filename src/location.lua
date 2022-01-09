@@ -21,7 +21,7 @@ function sum_cells(cell1, cell2)
   return create_cell(cell1.i + cell2.i, cell1.j + cell2.j)
 end
 
-function to_string(cell)
+function cell_to_string(cell)
   if cell then
     return "i: " .. cell.i .. " j: " .. cell.j
   else
