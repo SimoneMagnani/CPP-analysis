@@ -31,8 +31,10 @@ function print_simulation_on_checkpoint(matrix)
 end
 
 function is_simulation_ended(matrix)
-  for i,v in pairs(checkpoint) do
-    return false
+  for _,completed in pairs(checkpoint) do
+    if not completed then
+      return false
+    end
   end
   return true
   --return coverage_percentage(matrix) == 100

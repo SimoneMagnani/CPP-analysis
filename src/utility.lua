@@ -53,3 +53,10 @@ function table_contains_as_key(table, elem, check)
   end
   return false
 end
+
+function table_is_empty(table)
+  for i,v in pairs(table) do
+    return false
+  end
+  return true
+end

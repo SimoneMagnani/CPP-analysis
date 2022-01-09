@@ -80,6 +80,13 @@ function dir_to_string(dir)
           dir == DIRECTION.RIGHT and "Right"
 end
 
+function abs_dir_to_string(dir)
+  return dir == ABS_DIRECTION.NORTH and "^" or
+          dir == ABS_DIRECTION.WEST and "<" or
+          dir == ABS_DIRECTION.SOUTH and "v" or
+          dir == ABS_DIRECTION.EAST and ">"
+end
+
 function get_direction_from_cells(actual, destination)
   if actual == nil or destination == nil then
     log("param==nil => directions = nil")
