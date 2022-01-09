@@ -33,3 +33,23 @@ end
 function go_ahead()
   robot.wheels.set_velocity(MAX_VELOCITY,MAX_VELOCITY)
 end
+
+function table_contains_as_val(table, elem, check)
+  check = check or function (e1,e2) return e1 == e2 end
+  for _, value in pairs(table) do
+    if check(value, element) then
+      return true
+    end
+  end
+  return false
+end
+
+function table_contains_as_key(table, elem, check)
+  check = check or function (e1,e2) return e1 == e2 end
+  for key, _ in pairs(table) do
+    if check(key, element) then
+      return true
+    end
+  end
+  return false
+end
