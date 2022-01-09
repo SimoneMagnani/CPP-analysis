@@ -43,7 +43,9 @@ function direction_robot_to_offset(dir)
 end
 
 function abs_direction_to_offset(direction)
-  return DIRECTION_TO_COORD[direction + 1]
+  if direction and DIRECTION_TO_COORD[direction + 1] then
+    return DIRECTION_TO_COORD[direction + 1]
+  end
 end
 
 function get_directions_availabile()
