@@ -49,12 +49,12 @@ function stc(couple)
   if is_target_new then
     --log( get_robot_cell(matrix_cell).i, get_robot_cell(matrix_cell).j, " -> ", target.i, target.j)
     can_continue = move_following_tree(actual, target)
-    if not can_continue then
-      table.insert(matrix_cell[target.i][target.j].unvisitable_from, actual)
-    --log("tar: ",to_string(target), "pos: ", to_string(get_robot_cell(matrix_cell)))
-    elseif cells_are_equal(target, get_robot_cell(matrix_cell)) then
+    if cells_are_equal(target, get_robot_cell(matrix_cell)) then
       --log("ins coup: ", to_string(actual), to_string(target))
       table.insert(stack, create_couple(actual, target))
+    elseif not can_continue then
+      table.insert(matrix_cell[target.i][target.j].unvisitable_from, actual)
+      --log(cell_to_string(actual), "-/>", cell_to_string(target))
     end
   else
     --log("act: ",to_string(actual), " eff: ", to_string(get_robot_cell(matrix_cell)), " parent: ",to_string(parent))
