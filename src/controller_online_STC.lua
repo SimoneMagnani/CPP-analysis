@@ -8,8 +8,12 @@ matrix_cell = {}
 starting_cell = {}
 
 function init_controller(matrix)
+  have_to_print = true
   init_tree(matrix, calc_coord_cell_to_sub)
-  matrix_cell = create_matrix(calc_coord_sub_to_cell(#matrix), calc_coord_sub_to_cell(#matrix[1]), false)
+  matrix_cell = create_matrix(
+                  calc_coord_sub_to_cell(#matrix),
+                  calc_coord_sub_to_cell(#matrix[1]),
+                  function () return {value = false, unvisitable_from = {}} end)
   starting_cell = get_robot_cell(matrix_cell)
   table.insert(stack, create_couple(nil, starting_cell))
 end
@@ -18,29 +22,35 @@ function robot_step()
   if #stack > 0 then
     stc(stack[#stack])
   else
-    log("done")
+    if have_to_print then
+      have_to_print = false
+      print_in()
+      turn_clock()
+    end
+    return ""
+    --log("done")
   end
 end
 
 function stc(couple)
   parent, actual = get_from_couple(couple)
-  matrix_cell[actual.i][actual.j] = true
+  matrix_cell[actual.i][actual.j].value = true
   init_direction = get_direction_from_cells(parent, actual) or ABS_DIRECTION.EAST
-  if parent then
-    --log(to_string(parent), "->", to_string(actual), "dir: ",dir_to_string(init_direction))
-  end
+  --if parent then log(to_string(parent), "->", to_string(actual), "dir: ",dir_to_string(init_direction)) end
   direction = init_direction
   repeat
     direction = turn_direction_clock(direction)
     --log(dir_to_string(direction), abs_direction_to_offset(direction).i, abs_direction_to_offset(direction).j)
     target = sum_cells(actual, abs_direction_to_offset(direction))
-    is_target_new = coords_are_valid(matrix_cell, target.i, target.j) and not (matrix_cell[target.i][target.j])
+    is_target_new = coords_are_valid(matrix_cell, target.i, target.j) and
+                      not (matrix_cell[target.i][target.j].value) and
+                      not table_contains_as_val(matrix_cell[target.i][target.j].unvisitable_from, actual, cells_are_equal)
   until (is_target_new or direction == init_direction)
   if is_target_new then
     --log( get_robot_cell(matrix_cell).i, get_robot_cell(matrix_cell).j, " -> ", target.i, target.j)
     can_continue = move_following_tree(actual, target)
     if not can_continue then
-      matrix_cell[target.i][target.j] = true
+      table.insert(matrix_cell[target.i][target.j].unvisitable_from, actual)
     --log("tar: ",to_string(target), "pos: ", to_string(get_robot_cell(matrix_cell)))
     elseif cells_are_equal(target, get_robot_cell(matrix_cell)) then
       --log("ins coup: ", to_string(actual), to_string(target))
