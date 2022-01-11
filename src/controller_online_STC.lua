@@ -9,12 +9,12 @@ starting_cell = {}
 
 function init_controller(matrix)
   have_to_print = true
-  init_tree(matrix, calc_coord_cell_to_sub)
   matrix_cell = create_matrix(
                   calc_coord_sub_to_cell(#matrix),
                   calc_coord_sub_to_cell(#matrix[1]),
                   function () return {value = false, unvisitable_from = {}} end)
   starting_cell = get_robot_cell(matrix_cell)
+  init_tree(matrix, calc_coord_cell_to_sub, starting_cell)
   table.insert(stack, create_couple(nil, starting_cell))
 end
 
@@ -35,13 +35,14 @@ end
 function stc(couple)
   parent, actual = get_from_couple(couple)
   matrix_cell[actual.i][actual.j].value = true
-  init_direction = get_direction_from_cells(parent, actual) or ABS_DIRECTION.EAST
+  init_direction = get_direction_from_cells(actual, parent) or ABS_DIRECTION.EAST
   --if parent then log(to_string(parent), "->", to_string(actual), "dir: ",dir_to_string(init_direction)) end
   direction = init_direction
   repeat
-    direction = turn_direction_clock(direction)
+    direction = turn_direction_counterclock(direction)
     --log(dir_to_string(direction), abs_direction_to_offset(direction).i, abs_direction_to_offset(direction).j)
     target = sum_cells(actual, abs_direction_to_offset(direction))
+    --log("tab cont: ", coords_are_valid(matrix_cell, target.i, target.j) and table_contains_as_val(matrix_cell[target.i][target.j].unvisitable_from, actual, cells_are_equal))
     is_target_new = coords_are_valid(matrix_cell, target.i, target.j) and
                       not (matrix_cell[target.i][target.j].value) and
                       not table_contains_as_val(matrix_cell[target.i][target.j].unvisitable_from, actual, cells_are_equal)
@@ -66,7 +67,11 @@ function stc(couple)
       end
       --move back from x to a subcell of w along edge
     else
-      table.remove(stack)
+      move_following_tree(actual, target, true)
+      if is_submovement_ended() then
+        print_in()
+        table.remove(stack)
+      end
     end
   end
 end
