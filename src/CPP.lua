@@ -30,7 +30,7 @@ end
      It must contain the logic of your controller ]]
 function step()
   if is_simulation_ended(matrix) then
-    log(coverage_percentage(matrix))
+    --log(coverage_percentage(matrix))
     turn_clock()
     return
   end
