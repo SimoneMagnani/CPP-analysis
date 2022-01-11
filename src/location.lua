@@ -72,13 +72,11 @@ function go_to_target(matrix, target)
   -- Get robot radians                                
   yaw, pitch, roll = robot.positioning.orientation:toeulerangles()
   actual_radians = (yaw + math.pi                       -- [0, 2pi] 2pi long y axis
-                        + 3*math.pi/2 ) % (2 * math.pi)   -- [0, 2pi] 2pi long x axis
+                        + 3*math.pi/2 ) % (2 * math.pi) -- [0, 2pi] 2pi long x axis
                         - math.pi                       -- [-pi, pi] pi long x axis 
 
   -- Get target radians swapping y axis to uniform orientation (y grows going down)
   target_radians = math.atan2(-(target.i - actual_cell.i), target.j - actual_cell.j)
-
-  --log(yaw, "->", actual_radians, "->", target_radians)
   
   -- Decide if turn or not
   turning = math.abs(target_radians - actual_radians) > MAX_DELTA_RAD or 
