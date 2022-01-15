@@ -40,10 +40,9 @@ function exec_on_each_cell(matrix, funct)
 end
 
 function exec_on_each_cell_row(matrix, funct_cell, funct_row)
-  if not matrix_is_valid(matrix) then error('matrix not valid') end
+  assert(matrix_is_valid(matrix), "invalid matrix")
   for i=1, #matrix do
     for j=1, #matrix[i] do
-      -- if function returns a value it's assigned to cell
       funct_cell(matrix[i][j])
     end
     funct_row()
