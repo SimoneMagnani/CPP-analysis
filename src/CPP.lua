@@ -2,6 +2,7 @@ require "utility"
 require "matrix"
 require "evaluation"
 require "location"
+require "directions"
 
 require "controller_online_STC"
 --require "controller_random_chaos"
@@ -18,13 +19,12 @@ function init()
   robot.wheels.set_velocity(left_v,right_v)
   n_steps = 0
   robot.leds.set_all_colors("black")
-  matrix = create_matrix(30, 30, function () return 0 end)
+  matrix = create_matrix(30, 30, function () return { value = 0 } end)
   --matrix = create_matrix(30,30)
   init_controller(matrix)
+  init_cell_state(matrix, function (i,j) return CELL_STATE.UNVISITED end)
   init_checkpoints(1,33,50,80,87,88,89,90,100)
 end
-
-
 
 --[[ This function is executed at each time step
      It must contain the logic of your controller ]]
