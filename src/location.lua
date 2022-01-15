@@ -1,7 +1,7 @@
 require "matrix"
 require "utility"
 
-MAX_DELTA_RAD = math.pi/10.0--Defines the max rad at which the robot decides to go head instead of turn
+MAX_DELTA_RAD = math.pi/15.0--Defines the max rad at which the robot decides to go head instead of turn
 MIN_X = 0                   --The min X reachable from the robot
 MAX_X = 4                   --The max X reachable from the robot
 MIN_Y = 0                   --The min Y reachable from the robot
@@ -35,7 +35,7 @@ function get_robot_cell(matrix)
   -- donnow why are reverted
   y = robot.positioning.position.x
   x = robot.positioning.position.y
-  if x > MAX_X or x < MIN_X or y > MAX_Y or y < MIN_Y then error() end
+  assert(not(x > MAX_X or x < MIN_X or y > MAX_Y or y < MIN_Y), "out of bound coords")
   i = math.floor((y - MIN_Y) * #matrix[1] / MAX_Y) + 1
   j = math.floor((x - MIN_X) * #matrix    / MAX_X) + 1
   return create_cell(i,j)
@@ -45,7 +45,7 @@ function update_matrix_on_location(matrix)
   actual_cell = get_robot_cell(matrix)
   if not cells_are_equal(last_cell, actual_cell) then
     last_cell = actual_cell
-    matrix[actual_cell.i][actual_cell.j] = matrix[actual_cell.i][actual_cell.j] + 1
+    matrix[actual_cell.i][actual_cell.j].value = matrix[actual_cell.i][actual_cell.j].value + 1
   end
 end
 
@@ -91,5 +91,3 @@ function go_to_target(matrix, target)
   end
   return true
 end
-
-
