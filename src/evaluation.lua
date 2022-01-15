@@ -45,7 +45,7 @@ function coverage_percentage(matrix)
   seen_cells = 0
   function count_cells(cell) 
     tot_cells = tot_cells + 1
-    if cell > 0 then
+    if cell.value > 0 then
       seen_cells = seen_cells + 1
     end 
   end
