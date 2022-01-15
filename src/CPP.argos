@@ -8,11 +8,22 @@
   <framework>
     <system threads="0" />
     <experiment length="0"
-                ticks_per_second="10"
+                ticks_per_second="15"
      />
 <!--     You may want to set the seed of the RNG by: random_seed = "1" (or any n>0) in experiment  -->
   </framework>
   
+  <!-- ****************** -->
+  <!-- * Visualization * -->
+  <!-- ****************** -->
+  <!--visualization>
+    <qt-opengl lua_editor="false">
+      <camera>
+        <placement idx="0" position="-2.0767,0.015,2.74921" look_at="-1.59254,0.015,1.87423" lens_focal_length="20" />
+      </camera>
+    </qt-opengl>
+  </visualization>
+
  
   <!-- *************** -->
   <!-- * Controllers * -->
@@ -20,7 +31,7 @@
   <controllers>
     <lua_controller id="lua">
       <actuators>
-        <differential_steering implementation="default" noise_level="0.0"/>
+        <differential_steering implementation="default" noise_level="0.2"/>
         <leds implementation="default" medium="leds" />
       </actuators>
       <sensors>
@@ -62,12 +73,28 @@
       </entity>
     </distribute-->
     
+    <box id="o" size="0.08, 0.08, 0.2" movable="false">
+      <body position="0.67,2.7,0" orientation="0,0,0" />
+    </box>
+    
+    <box id="o1" size="0.08, 0.08, 0.2" movable="false">
+      <body position="2.7,0.67,0" orientation="0,0,0" />
+    </box>
+    
+    <box id="o2" size="0.08, 0.08, 0.2" movable="false">
+      <body position="0.67,0.67,0" orientation="0,0,0" />
+    </box>
+  
+    <box id="o3" size="0.08, 0.08, 0.2" movable="false">
+      <body position="2.7,2.7,0" orientation="0,0,0" />
+    </box>
+    
     
 <!--     Place the robot in a given precise position -->
-<!--    <foot-bot id="fb">
+    <!--foot-bot id="fb">
       <controller config="lua" />
-      <body position="0.2,0.3,0" orientation="0,0,0" />
-    </foot-bot>-->
+      <body position="0.7,1.3,0" orientation="0,0,0" />
+    </foot-bot-->
 
 
 <!--     If you want to place the robot(s) in a random position you may want to use this piece of code -->
@@ -99,16 +126,5 @@
     <led id="leds" />
   </media>
 
-	
-  <!-- ****************** -->
-  <!-- * Visualization * -->
-  <!-- ****************** -->
-  <visualization>
-    <qt-opengl lua_editor="false">
-      <camera>
-        <placement idx="0" position="-2.0767,0.015,2.74921" look_at="-1.59254,0.015,1.87423" lens_focal_length="20" />
-      </camera>
-    </qt-opengl>
-  </visualization>
  
 </argos-configuration>
