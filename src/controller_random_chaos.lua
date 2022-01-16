@@ -11,6 +11,10 @@ chaotic = 0
 can_continue = true
 matrix = {}
 
+function is_controller_online()
+  return true
+end
+
 function init_controller(m)
   matrix = m
   can_continue = true
@@ -20,6 +24,10 @@ function init_controller(m)
       chaotic = robot.random.uniform()
     until chaotic ~= 0
   end
+end
+
+function controller_ended()
+  return false
 end
 
 
