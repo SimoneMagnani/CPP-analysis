@@ -1,5 +1,3 @@
-PROXIMITY_THRESHOLD = 0.01  --The threshold above which a sum of proximity sensor consider a cell occupied
-
 DIRECTION = {
   FRONT = 0,
   LEFT = 1,
@@ -31,15 +29,20 @@ DIRECTION_TO_COORD = { -- non è direction TODO
 ANGLE = math.pi / 2
 N_DIRECTIONS = #DIRECTION_TO_COORD
 
-function robot_dir_to_absolute(dir)
+function get_abs_dir_from_dir(dir)
   yaw, pitch, roll = robot.positioning.orientation:toeulerangles()
   direction_radians = (yaw + math.pi                   -- [0, 2pi] 2pi long y axis
                         + dir * ANGLE) % (2 * math.pi)   -- slide of dir angle
   return math.floor(direction_radians / ANGLE + 0.5) % 4
 end
 
+function get_dir_from_absolute(abs_dir)
+  yaw, pitch, roll = robot.positioning.orientation:toeulerangles()
+  return math.floor((abs_dir * ANGLE - yaw + math.pi) / ANGLE + 4.5) % 4
+end
+
 function direction_robot_to_offset(dir)
-  return abs_direction_to_offset(robot_dir_to_absolute(dir))
+  return abs_direction_to_offset(get_abs_dir_from_dir(dir))
 end
 
 function abs_direction_to_offset(direction)
@@ -51,21 +54,29 @@ end
 function get_directions_availabile()
   init_front_index = 24
   dirs = {}
+  n_sensors = #robot.proximity
   for i=1,N_DIRECTIONS do
-    n_sensors = #robot.proximity
-    front_index = move_index_of(init_front_index, (i-1) * (n_sensors / N_DIRECTIONS), n_sensors)
-    prev_index = move_index_of(front_index, n_sensors-1, n_sensors)
-    post_index = move_index_of(front_index, 1, n_sensors)
-    proximity_sum = robot.proximity[prev_index ].value +
-                    robot.proximity[front_index].value +
-                    robot.proximity[post_index ].value
-    dirs[cast_to_direction(i)] = proximity_sum < PROXIMITY_THRESHOLD
+    front_index_1 = move_index_of(init_front_index, (i-1) * (n_sensors / N_DIRECTIONS), n_sensors)
+    front_index_2 = move_index_of(front_index_1, 1, n_sensors)
+    post_index = move_index_of(front_index_1, 2, n_sensors)
+    prev_index = move_index_of(front_index_1, n_sensors-1, n_sensors)
+    proximity_sum =(robot.proximity[front_index_1].value +
+                    robot.proximity[front_index_2].value) * 2+
+                    robot.proximity[prev_index].value +
+                    robot.proximity[post_index].value
+    --log(dir_to_string(cast_to_direction(i)), '-> ', proximity_sum)
+    dirs[cast_to_direction(i)] = object_near(proximity_sum, 6)
   end
   return dirs
 end
 
 function is_direction_available(dir)
   return get_directions_availabile()[dir] and true or false
+end
+
+
+function is_abs_dir_available(abs_dir)
+  return is_direction_available(get_dir_from_absolute(abs_dir))
 end
 
 function cast_to_direction(index)
@@ -87,9 +98,10 @@ function abs_dir_to_string(dir)
           dir == ABS_DIRECTION.EAST and ">"
 end
 
-function get_direction_from_cells(actual, destination)
+function get_abs_dir_from_cells(actual, destination)
+  assert(not cells_are_equal(actual, destination))
   if actual == nil or destination == nil then
-    log("param==nil => directions = nil")
+    --log("param==nil => directions = nil")
     return
   end
   offset = get_offset_from_cells(actual, destination)
@@ -98,8 +110,24 @@ function get_direction_from_cells(actual, destination)
       return cast_to_direction(k)
     end
   end
-  log(actual.i,actual.j, " des ", destination.i, destination.j)
-  assert(false)
+  if actual.i > destination.i then
+    abs_dir = ABS_DIRECTION.NORTH
+  elseif actual.i < destination.i then
+    abs_dir = ABS_DIRECTION.SOUTH
+  end
+  if abs_dir and is_abs_dir_available(abs_dir) then
+    choose_abs_dir = function(new_abs) return is_abs_dir_available(new_abs) and new_abs or abs_dir end
+  else
+    choose_abs_dir = function(new_abs) return new_abs end
+  end
+  if actual.j > destination.j then
+    abs_dir = choose_abs_dir(ABS_DIRECTION.WEST)
+  elseif actual.j < destination.j then
+    abs_dir = choose_abs_dir(ABS_DIRECTION.EAST)
+  end
+  --log(abs_dir_to_string(abs_dir))
+  assert(abs_dir)
+  return abs_dir
 end
 
 function turn_direction_counterclock(direction)
@@ -108,4 +136,8 @@ end
 
 function turn_direction_clock(direction)
   return (direction +  N_DIRECTIONS - 1) % N_DIRECTIONS
+end
+
+function opposite_direction(direction)
+  return (direction + 2) % N_DIRECTIONS
 end
