@@ -1,4 +1,5 @@
 MAX_VELOCITY = 20           --Sets the max speed of the robot
+PROXIMITY_THRESHOLD = 0.2   --The threshold above which a proximity sensor is considered
 
 --gap must be positive
 function move_index_of(start, gap, max)
@@ -9,6 +10,10 @@ function move_index_of(start, gap, max)
   else
     return new_index
   end
+end
+
+function object_near(proximity, n_sensors)
+  return (proximity / n_sensors) < PROXIMITY_THRESHOLD
 end
 
 --Choose and turn to the shortest way
