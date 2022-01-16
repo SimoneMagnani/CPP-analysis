@@ -7,6 +7,10 @@ stack = {}
 matrix_cell = {}
 starting_cell = {}
 
+function is_controller_online()
+  return true
+end
+
 function init_controller(matrix)
   have_to_print = true
   matrix_cell = create_matrix(
@@ -32,10 +36,15 @@ function robot_step()
   end
 end
 
+function controller_ended()
+  return not (#stack > 0)
+end
+
 function stc(couple)
   parent, actual = get_from_couple(couple)
   matrix_cell[actual.i][actual.j].value = true
-  init_direction = get_direction_from_cells(actual, parent) or ABS_DIRECTION.EAST
+  init_direction = get_abs_dir_from_cells(parent, actual) or ABS_DIRECTION.WEST             -- my dir
+  init_direction = turn_direction_counterclock(turn_direction_counterclock(init_direction)) -- was coming from
   --if parent then log(to_string(parent), "->", to_string(actual), "dir: ",dir_to_string(init_direction)) end
   direction = init_direction
   repeat
@@ -49,7 +58,7 @@ function stc(couple)
   until (is_target_new or direction == init_direction)
   if is_target_new then
     --log( get_robot_cell(matrix_cell).i, get_robot_cell(matrix_cell).j, " -> ", target.i, target.j)
-    can_continue = move_following_tree(actual, target)
+    can_continue = move_following_tree(actual, target, false)
     if cells_are_equal(target, get_robot_cell(matrix_cell)) then
       --log("ins coup: ", to_string(actual), to_string(target))
       table.insert(stack, create_couple(actual, target))
@@ -61,13 +70,13 @@ function stc(couple)
     --log("act: ",to_string(actual), " eff: ", to_string(get_robot_cell(matrix_cell)), " parent: ",to_string(parent))
     if not cells_are_equal(actual, starting_cell) then
       if not cells_are_equal(parent, get_robot_cell(matrix_cell)) then
-        move_following_tree(actual, parent)
+        move_following_tree(actual, parent, true)
       else
         table.remove(stack)
       end
       --move back from x to a subcell of w along edge
     else
-      move_following_tree(actual, target, true)
+      move_following_tree(actual, target, true, true)
       if is_submovement_ended() then
         print_in()
         table.remove(stack)
