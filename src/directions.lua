@@ -74,7 +74,6 @@ function is_direction_available(dir)
   return get_directions_availabile()[dir] and true or false
 end
 
-
 function is_abs_dir_available(abs_dir)
   return is_direction_available(get_dir_from_absolute(abs_dir))
 end
