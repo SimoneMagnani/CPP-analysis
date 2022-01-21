@@ -54,7 +54,7 @@ end
 function move_following_tree(actual_cell, target_cell, coming_back, ending)
   ending = ending or false
   assert(not cells_are_equal(actual_cell, target_cell)) -- ~
-  if (not cells_are_equal(target_cell, last_target_cell) or cells_are_equal(actual_cell, last_target_cell))  and future_offset then
+  if (not cells_are_equal(target_cell, last_target_cell) or cells_are_equal(actual_cell, last_target_cell)) and future_offset then
     disable_longer_way()
   end
   last_target_cell = target_cell
@@ -81,8 +81,8 @@ function move_following_tree(actual_cell, target_cell, coming_back, ending)
   --log("tar: ",cell_to_string(target_subcell))
   abs_dir = get_abs_dir_from_cells(subcell, target_subcell)
   dir = get_dir_from_absolute(abs_dir)
-  assert(get_new_target_cell(abs_direction_to_offset(dir), matrix))
-  if get_cell_state(matrix, target_subcell) == CELL_STATE.UNVISITED then
+  assert(cells_are_equal(get_new_target_cell(abs_direction_to_offset(dir), matrix), target_subcell))
+  if get_cell_state(matrix, target_subcell) == CELL_STATE.UNKNOWN then
     set_cell_state(matrix, target_subcell, is_direction_available(dir) and CELL_STATE.VISITING or CELL_STATE.UNVISITABLE)
   end
   target_state = get_cell_state(matrix, target_subcell)
@@ -140,15 +140,17 @@ function move_following_tree(actual_cell, target_cell, coming_back, ending)
         disable_longer_way()
         return false
       else
-        log("two obstacles as wall, don't have to pass it")
+        log("two obstacles as wall, but don't have to pass it")
         future_target_subcell = nil
         return true
       end
     elseif future_offset then
+      -- found an other obstacle
       log("an other obstacle, can redo same as bef")
       enable_longer_way(target_subcell, offset_cell, abs_dir)
       return true
     else
+      -- found first obstale
       log("enable longer way cause obstacle")
       enable_longer_way(target_subcell, offset_cell, abs_dir)
       return true
@@ -234,16 +236,16 @@ function longer_way(actual_cell, target_cell, ending)
       return future_target_subcell
     end
   else
-    if get_quadrant_from_cells(target_cell, subcell) ~= QUADRANT.OUT and not cells_are_equal(last_subcell, subcell) then log("arrivato con out") end -- TODO check it
-    if get_quadrant_from_cells(target_cell, subcell) ~= QUADRANT.OUT or cells_are_equal(last_subcell, subcell) then -- sono arrivato?
-      log("past the obstacle, restart normal cycle")
+    if get_quadrant_from_cells(target_cell, subcell) ~= QUADRANT.OUT or cells_are_equal(last_subcell, subcell) then -- sono arrivato
       if get_quadrant_from_cells(actual_cell, subcell) ~= QUADRANT.OUT and
           is_abs_dir_available(get_abs_dir_from_cells(actual_cell, target_cell)) then
+        -- se sono nella cella sono ma non sono ancora uscito posso uscire
         return get_new_target_cell(get_offset_from_cells(actual_cell, target_cell), matrix)
+      else
+        log("past the obstacle, restart normal cycle")
+        disable_longer_way()
+        return default_calc_target_subcell(actual_cell, target_cell, ending)
       end
-      -- TODO se le celle sono uguali ma non sono ancora uscito posso uscire!!! TODO TODO
-      disable_longer_way()
-      return default_calc_target_subcell(actual_cell, target_cell, ending)
     else
       log("going to exit")
       return last_subcell
@@ -303,15 +305,11 @@ function default_calc_target_subcell(actual_cell, target_cell, ending)
           cell_to_string(offset_cell),
           cells_are_equal(offset_cell, abs_direction_to_offset(QUADRANT_TO_POSSIBLE_DIRECTION[quad])))]]
     if quad == QUADRANT.OUT then
-      --log("cause out")
       return nearest_subcell_in_cell(matrix, actual_cell)
-      --log("return to cell")
     else
       if cells_are_equal(offset_cell, abs_direction_to_offset(QUADRANT_TO_POSSIBLE_DIRECTION[quad])) and not ending then
-        --log("exit")
         return get_new_target_cell(offset_cell, matrix)
       else
-        --log("stay")
         return get_new_target_cell(abs_direction_to_offset(turn_direction_counterclock(QUADRANT_TO_POSSIBLE_DIRECTION[quad])), matrix)
       end
     end
