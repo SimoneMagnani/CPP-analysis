@@ -23,8 +23,8 @@ function init()
   matrix = create_matrix(30, 30, function () return { value = 0 } end)
   --matrix = create_matrix(30,30)
   how_init_state = is_controller_online() and
-                          function (i,j) return CELL_STATE.UNVISITED end or
-                          function (i,j) return CELL_STATE.UNVISITED end --TODO offline methods
+                          function (i,j) return CELL_STATE.UNKNOWN end or
+                          function (i,j) return CELL_STATE.VISITING or CELL_STATE.UNVISITABLE end --TODO offline methods
   init_cell_state(matrix, how_init_state)
   init_controller(matrix)
   init_checkpoints(1,33,50,80,87,88,89,90,91,100)

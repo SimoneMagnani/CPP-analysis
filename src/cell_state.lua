@@ -1,7 +1,7 @@
 require "location" --to remove
 
 CELL_STATE = {
-  UNVISITED = 0,
+  UNKNOWN = 0,
   VISITING = 1,
   VISITABLE = 2,
   UNVISITABLE = 3,
@@ -28,7 +28,7 @@ function set_cell_state(matrix, cell, new_state)
 end
 
 function state_to_string(state)
-  return state == CELL_STATE.UNVISITED and "Unvisited" or
+  return state == CELL_STATE.UNKNOWN and "Uknown" or
         (state == CELL_STATE.VISITING and "Visiting") or
         (state == CELL_STATE.VISITABLE and "Visitable") or
         (state == CELL_STATE.UNVISITABLE and "UnVisitable") or
