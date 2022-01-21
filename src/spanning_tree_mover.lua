@@ -36,7 +36,7 @@ first_target_subcell = nil
 next_walking_subcell = nil
 
 
-function init_tree(matrix_sub, cell_to_subcell, init_cell)
+function init_mover(matrix_sub, cell_to_subcell, init_cell)
   matrix = matrix_sub
   calc_coord_cell_to_first_subcell = cell_to_subcell
   last_target_cell = nil

@@ -1,7 +1,7 @@
 require "location"
 require "utility"
 require "directions"
-require "spanning_tree"
+require "spanning_tree_mover"
 require "STC_utility"
 
 stack = {}
@@ -19,7 +19,7 @@ function init_controller(matrix)
                   calc_coord_sub_to_cell(#matrix[1]),
                   function () return {value = false, unvisitable_from = {}} end)
   starting_cell = get_robot_cell(matrix_cell)
-  init_tree(matrix, calc_coord_cell_to_sub, starting_cell)
+  init_mover(matrix, calc_coord_cell_to_sub, starting_cell)
   table.insert(stack, create_couple(nil, starting_cell))
 end
 
