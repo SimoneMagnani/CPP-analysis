@@ -22,11 +22,11 @@ function init()
   robot.leds.set_all_colors("black")
   matrix = create_matrix(30, 30, function () return { value = 0 } end)
   --matrix = create_matrix(30,30)
-  init_controller(matrix)
-  how_init_state = is_controller_online and
+  how_init_state = is_controller_online() and
                           function (i,j) return CELL_STATE.UNVISITED end or
                           function (i,j) return CELL_STATE.UNVISITED end --TODO offline methods
   init_cell_state(matrix, how_init_state)
+  init_controller(matrix)
   init_checkpoints(1,33,50,80,87,88,89,90,91,100)
 end
 
