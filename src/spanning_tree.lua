@@ -24,7 +24,6 @@ QUADRANT_TO_POSSIBLE_DIRECTION = {
 
 matrix = {}
 calc_coord_cell_to_first_subcell = nil
-starting_cell = nil
 ending_condition = nil
 future_offset = nil
 next_target_subcell = nil
@@ -40,14 +39,15 @@ next_walking_subcell = nil
 function init_tree(matrix_sub, cell_to_subcell, init_cell)
   matrix = matrix_sub
   calc_coord_cell_to_first_subcell = cell_to_subcell
-  starting_cell = init_cell
   last_target_cell = nil
   disable_longer_way()
+  init_i = calc_coord_cell_to_first_subcell(init_cell.i)
+  init_j = calc_coord_cell_to_first_subcell(init_cell.j)
   ending_condition = {
-    [QUADRANT.UP_LEFT] = false,
-    [QUADRANT.DOWN_LEFT] = false,
-    [QUADRANT.DOWN_RIGHT] = false,
-    [QUADRANT.UP_RIGHT]  = false
+    create_cell(init_i    , init_j    ),
+    create_cell(init_i + 1, init_j    ),
+    create_cell(init_i    , init_j + 1),
+    create_cell(init_i + 1, init_j + 1)
   }
 end
 
@@ -63,9 +63,6 @@ function move_following_tree(actual_cell, target_cell, coming_back, ending)
     set_cell_state(matrix, subcell, CELL_STATE.VISITABLE)
   end
   --set_cell_visitable(matrix, subcell, true)
-  if cells_are_equal(actual_cell, starting_cell) then
-    ending_condition[get_quadrant_from_cells(actual_cell, subcell)] = true
-  end
   --log(cell_to_string(actual_cell), " -> ", cell_to_string(target_cell), "from ", cell_to_string(subcell))
   target_subcell = nil
   if abs_dir_normal and abs_dir_parallel then
@@ -98,10 +95,6 @@ function move_following_tree(actual_cell, target_cell, coming_back, ending)
       else
         set_cell_state(matrix, target_subcell, CELL_STATE.UNVISITABLE)
       end
-      quad_in_starting = get_quadrant_from_cells(starting_cell, target_subcell)
-      if quad_in_starting ~= QUADRANT.OUT then
-        ending_condition[get_quadrant_from_cells(actual_cell, target_subcell)] = true
-      end
     end
     return is_reachable
   else
@@ -117,8 +110,8 @@ function move_following_tree(actual_cell, target_cell, coming_back, ending)
         if get_cell_state(matrix, possible_new_target_subcell) == CELL_STATE.VISITABLE and
             is_abs_dir_available(get_abs_dir_from_cells(actual_cell, target_cell)) then
           new_target_subcell = possible_new_target_subcell
-          assert(get_quadrant_from_cells(target_cell, new_target_subcell) ~= QUADRANT.OUT,
-                 quad_to_string(get_quadrant_from_cells(target_cell, new_target_subcell)))-- TODO
+          assert(get_quadrant_from_cells(target_cell, new_target_subcell) ~= QUADRANT.OUT, 
+                  quad_to_string(get_quadrant_from_cells(target_cell, new_target_subcell)))-- TODO
         else
           function calc_abs_dirs(best, worst) 
             abs_dir_parallel = abs_dir_parallel and opposite_direction(abs_dir_parallel) or get_abs_dir_from_cells(best, subcell) --if parallel exists take opposite
@@ -343,8 +336,11 @@ function print_in()
 end
 
 function is_submovement_ended()
-  for _, completed in pairs(ending_condition) do
-    if not completed then
+  for _, subcell in ipairs(ending_condition) do
+    state = get_cell_state(matrix, subcell)
+    if not (state == CELL_STATE.VISITABLE or
+        state == CELL_STATE.UNVISITABLE or 
+        state == CELL_STATE.WASVISITABLE) then
       return false
     end
   end
