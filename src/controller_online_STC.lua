@@ -2,6 +2,7 @@ require "location"
 require "utility"
 require "directions"
 require "spanning_tree"
+require "STC_utility"
 
 stack = {}
 matrix_cell = {}
@@ -32,7 +33,6 @@ function robot_step()
       turn_clock()
     end
     return ""
-    --log("done")
   end
 end
 
@@ -43,38 +43,21 @@ end
 function stc(couple)
   parent, actual = get_from_couple(couple)
   matrix_cell[actual.i][actual.j].value = true
-  init_direction = get_abs_dir_from_cells(parent, actual) or ABS_DIRECTION.WEST             -- my dir
-  init_direction = turn_direction_counterclock(turn_direction_counterclock(init_direction)) -- was coming from
-  --if parent then log(to_string(parent), "->", to_string(actual), "dir: ",dir_to_string(init_direction)) end
-  direction = init_direction
-  repeat
-    direction = turn_direction_counterclock(direction)
-    --log(dir_to_string(direction), abs_direction_to_offset(direction).i, abs_direction_to_offset(direction).j)
-    target = sum_cells(actual, abs_direction_to_offset(direction))
-    --log("tab cont: ", coords_are_valid(matrix_cell, target.i, target.j) and table_contains_as_val(matrix_cell[target.i][target.j].unvisitable_from, actual, cells_are_equal))
-    is_target_new = coords_are_valid(matrix_cell, target.i, target.j) and
-                      not (matrix_cell[target.i][target.j].value) and
-                      not table_contains_as_val(matrix_cell[target.i][target.j].unvisitable_from, actual, cells_are_equal)
-  until (is_target_new or direction == init_direction)
+  target, is_target_new = calc_new_target(matrix_cell, parent, actual)
   if is_target_new then
-    --log( get_robot_cell(matrix_cell).i, get_robot_cell(matrix_cell).j, " -> ", target.i, target.j)
     can_continue = move_following_tree(actual, target, false)
     if cells_are_equal(target, get_robot_cell(matrix_cell)) then
-      --log("ins coup: ", to_string(actual), to_string(target))
       table.insert(stack, create_couple(actual, target))
     elseif not can_continue then
       table.insert(matrix_cell[target.i][target.j].unvisitable_from, actual)
-      --log(cell_to_string(actual), "-/>", cell_to_string(target))
     end
   else
-    --log("act: ",to_string(actual), " eff: ", to_string(get_robot_cell(matrix_cell)), " parent: ",to_string(parent))
     if not cells_are_equal(actual, starting_cell) then
       if not cells_are_equal(parent, get_robot_cell(matrix_cell)) then
         move_following_tree(actual, parent, true)
       else
         table.remove(stack)
       end
-      --move back from x to a subcell of w along edge
     else
       move_following_tree(actual, target, true, true)
       if is_submovement_ended() then
