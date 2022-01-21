@@ -38,7 +38,7 @@ end
 
 function get_dir_from_absolute(abs_dir)
   yaw, pitch, roll = robot.positioning.orientation:toeulerangles()
-  return math.floor((abs_dir * ANGLE - yaw + math.pi) / ANGLE + 4.5) % 4
+  return math.floor((abs_dir * ANGLE - (yaw + math.pi)) / ANGLE + 4.5) % 4
 end
 
 function direction_robot_to_offset(dir)
@@ -74,8 +74,34 @@ function is_direction_available(dir)
   return get_directions_availabile()[dir] and true or false
 end
 
+function get_abs_dir_available()
+  yaw, pitch, roll = robot.positioning.orientation:toeulerangles()
+  init_front_index = math.ceil(
+          ((yaw + math.pi)       --[0, 2pi]
+            / (2 * math.pi)) * 24  --[0, 24]
+        )
+  init_front_index = init_front_index == 24 and 0 or init_front_index
+  init_north_index = 24 - init_front_index
+  dirs = {}
+  --log(yaw, " ",init_front_index," ", init_north_index)
+  n_sensors = #robot.proximity
+  for i=1,N_DIRECTIONS do
+    front_index_1 = move_index_of(init_north_index, (i-1) * (n_sensors / N_DIRECTIONS), n_sensors)
+    front_index_2 = move_index_of(front_index_1, 1, n_sensors)
+    post_index = move_index_of(front_index_1, 2, n_sensors)
+    prev_index = move_index_of(front_index_1, n_sensors-1, n_sensors)
+    proximity_sum =(robot.proximity[front_index_1].value +
+                    robot.proximity[front_index_2].value) * 2+
+                    robot.proximity[prev_index].value +
+                    robot.proximity[post_index].value
+    --log(abs_dir_to_string(cast_to_direction(i)), prev_index,front_index_1,front_index_2,post_index, '-> ', proximity_sum)
+    dirs[cast_to_direction(i)] = object_near(proximity_sum, 6)
+  end
+  return dirs
+end
+
 function is_abs_dir_available(abs_dir)
-  return is_direction_available(get_dir_from_absolute(abs_dir))
+  return get_abs_dir_available()[abs_dir] and true or false
 end
 
 function cast_to_direction(index)

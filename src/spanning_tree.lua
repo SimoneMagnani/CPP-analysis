@@ -80,13 +80,12 @@ function move_following_tree(actual_cell, target_cell, coming_back, ending)
   --target_subcell = get_new_target_cell(create_cell(0,-1),matrix)
   --log("tar: ",cell_to_string(target_subcell))
   abs_dir = get_abs_dir_from_cells(subcell, target_subcell)
-  dir = get_dir_from_absolute(abs_dir)
-  assert(cells_are_equal(get_new_target_cell(abs_direction_to_offset(dir), matrix), target_subcell))
+  --dir = get_dir_from_absolute(abs_dir)
   if get_cell_state(matrix, target_subcell) == CELL_STATE.UNKNOWN then
-    set_cell_state(matrix, target_subcell, is_direction_available(dir) and CELL_STATE.VISITING or CELL_STATE.UNVISITABLE)
+    set_cell_state(matrix, target_subcell, is_abs_dir_available(abs_dir) and CELL_STATE.VISITING or CELL_STATE.UNVISITABLE)
   end
   target_state = get_cell_state(matrix, target_subcell)
-  if target_state == CELL_STATE.VISITABLE or (target_state == CELL_STATE.VISITING and is_direction_available(dir)) then
+  if target_state == CELL_STATE.VISITABLE or (target_state == CELL_STATE.VISITING and is_abs_dir_available(abs_dir)) then
     --log("going to", cell_to_string(target_subcell))
     is_reachable = go_to_target(matrix, target_subcell)
     if not is_reachable then
@@ -199,7 +198,7 @@ function walk_near_wall()
       exist_obj_near = true
     end
   end]]
-  if is_direction_available(get_dir_from_absolute(abs_dir_normal)) then
+  if is_abs_dir_available(abs_dir_normal) then
     log("disable wall")
     --abs_dir_parallel = nil
     abs_dir_normal = nil
