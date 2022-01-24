@@ -8,9 +8,7 @@ require "cell_state"
 require "controller_online_STC"
 --require "controller_random_chaos"
 
-
-n_steps = 0
-
+online = true
 
 --[[ This function is executed every time you press the 'execute'
      button ]]
@@ -22,11 +20,24 @@ function init()
   robot.leds.set_all_colors("black")
   matrix = create_matrix(30, 30, function () return { value = 0 } end)
   --matrix = create_matrix(30,30)
-  how_init_state = is_controller_online() and
+  how_init_state = online and
                           function (i,j) return CELL_STATE.UNKNOWN end or
-                          function (i,j) return CELL_STATE.VISITING or CELL_STATE.UNVISITABLE end --TODO offline methods
+                          function (i,j)
+                            if i >= 7 and i <= 19 and j >= 7 and j <= 19 then     --central obstacle
+                              return CELL_STATE.UNVISITABLE
+                            elseif i >= 5 and i <= 6 and j >= 5 and j <= 6 then     --up-left obstacle
+                              return CELL_STATE.UNVISITABLE
+                            elseif i >= 5 and i <= 6 and j >= 26 and j <= 27 then   --up-right obstacle
+                              return CELL_STATE.UNVISITABLE
+                            elseif i >= 26 and i <= 27 and j >= 5 and j <= 6 then   --down-left obstacle
+                              return CELL_STATE.UNVISITABLE
+                            elseif i >= 26 and i <= 27 and j >= 26 and j <= 27 then --down-right obstacle
+                              return CELL_STATE.UNVISITABLE
+                            end
+                            return CELL_STATE.VISITING
+                          end --TODO offline methods
   init_cell_state(matrix, how_init_state)
-  init_controller(matrix)
+  init_controller(matrix, online)
   init_checkpoints(1,33,50,80,87,88,89,90,91,100)
 end
 

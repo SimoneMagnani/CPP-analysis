@@ -15,7 +15,8 @@ function is_controller_online()
   return true
 end
 
-function init_controller(m)
+function init_controller(m, online)
+  assert(online, "Random controller must be online_controller")
   matrix = m
   can_continue = true
   target_cell = get_next_target()
