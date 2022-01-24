@@ -51,21 +51,23 @@ function abs_direction_to_offset(direction)
   end
 end
 
+function is_near_from_starting_index(init_front_index)
+  front_index_1 = init_front_index
+  front_index_2 = move_index_of(front_index_1, 1, n_sensors)
+  post_index = move_index_of(front_index_1, 2, n_sensors)
+  prev_index = move_index_of(front_index_1, n_sensors-1, n_sensors)
+  return object_near((robot.proximity[front_index_1].value +
+                      robot.proximity[front_index_2].value) * 2+
+                      robot.proximity[prev_index].value +
+                      robot.proximity[post_index].value, 6)
+end
+
 function get_directions_availabile()
   init_front_index = 24
   dirs = {}
   n_sensors = #robot.proximity
   for i=1,N_DIRECTIONS do
-    front_index_1 = move_index_of(init_front_index, (i-1) * (n_sensors / N_DIRECTIONS), n_sensors)
-    front_index_2 = move_index_of(front_index_1, 1, n_sensors)
-    post_index = move_index_of(front_index_1, 2, n_sensors)
-    prev_index = move_index_of(front_index_1, n_sensors-1, n_sensors)
-    proximity_sum =(robot.proximity[front_index_1].value +
-                    robot.proximity[front_index_2].value) * 2+
-                    robot.proximity[prev_index].value +
-                    robot.proximity[post_index].value
-    --log(dir_to_string(cast_to_direction(i)), '-> ', proximity_sum)
-    dirs[cast_to_direction(i)] = object_near(proximity_sum, 6)
+    dirs[cast_to_direction(i)] = is_near_from_starting_index(move_index_of(init_front_index, (i-1) * (n_sensors / N_DIRECTIONS), n_sensors))
   end
   return dirs
 end
@@ -74,34 +76,33 @@ function is_direction_available(dir)
   return get_directions_availabile()[dir] and true or false
 end
 
-function get_abs_dir_available()
+function get_abs_dir_available(shift)
+  n_sensors = #robot.proximity
   yaw, pitch, roll = robot.positioning.orientation:toeulerangles()
   init_front_index = math.ceil(
-          ((yaw + math.pi)       --[0, 2pi]
-            / (2 * math.pi)) * 24  --[0, 24]
-        )
-  init_front_index = init_front_index == 24 and 0 or init_front_index
-  init_north_index = 24 - init_front_index
+                        ((yaw + math.pi)       --[0, 2pi]
+                          / (2 * math.pi)) * n_sensors  --[0, 24]
+                      )
+  init_front_index = shift and init_front_index + n_sensors / N_DIRECTIONS / 2 or init_front_index
+  init_north_index = n_sensors - init_front_index % n_sensors
   dirs = {}
   --log(yaw, " ",init_front_index," ", init_north_index)
-  n_sensors = #robot.proximity
   for i=1,N_DIRECTIONS do
-    front_index_1 = move_index_of(init_north_index, (i-1) * (n_sensors / N_DIRECTIONS), n_sensors)
-    front_index_2 = move_index_of(front_index_1, 1, n_sensors)
-    post_index = move_index_of(front_index_1, 2, n_sensors)
-    prev_index = move_index_of(front_index_1, n_sensors-1, n_sensors)
-    proximity_sum =(robot.proximity[front_index_1].value +
-                    robot.proximity[front_index_2].value) * 2+
-                    robot.proximity[prev_index].value +
-                    robot.proximity[post_index].value
-    --log(abs_dir_to_string(cast_to_direction(i)), prev_index,front_index_1,front_index_2,post_index, '-> ', proximity_sum)
-    dirs[cast_to_direction(i)] = object_near(proximity_sum, 6)
+    dirs[cast_to_direction(i)] = is_near_from_starting_index(move_index_of(init_north_index, (i-1) * (n_sensors / N_DIRECTIONS), n_sensors))
   end
   return dirs
 end
 
 function is_abs_dir_available(abs_dir)
-  return get_abs_dir_available()[abs_dir] and true or false
+  return get_abs_dir_available(false)[abs_dir] and true or false
+end
+
+function is_shifted_counterclock_abs_dir_available(abs_dir)
+  return get_abs_dir_available(true)[abs_dir] and true or false
+end
+
+function is_shifted_clock_abs_dir_available(abs_dir)
+  return get_abs_dir_available(true)[turn_direction_clock(abs_dir)] and true or false
 end
 
 function cast_to_direction(index)
