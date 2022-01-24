@@ -5,6 +5,7 @@ require "evaluation" -- to remove
 require "cell_state"
 
 MULTIPLIER = 2
+TOO_LONG_FROM_TARGET = 5
 
 QUADRANT = {
   UP_LEFT = 1,
@@ -53,12 +54,19 @@ end
 
 function move_following_tree(actual_cell, target_cell, coming_back, ending)
   ending = ending or false
+  subcell = get_robot_cell(matrix)
   assert(not cells_are_equal(actual_cell, target_cell)) -- ~
-  if (not cells_are_equal(target_cell, last_target_cell) or cells_are_equal(actual_cell, last_target_cell)) and future_offset then
+  nearest_in_target = nearest_subcell_in_cell(matrix, target_cell)
+  nearest_in_actual = nearest_subcell_in_cell(matrix, actual_cell)
+  if (not cells_are_equal(target_cell, last_target_cell) or
+      cells_are_equal(actual_cell, last_target_cell) or
+      (math.abs(nearest_in_target.i - subcell.i) > TOO_LONG_FROM_TARGET and
+       math.abs(nearest_in_actual.i - subcell.i) > TOO_LONG_FROM_TARGET) or
+      (math.abs(nearest_in_target.j - subcell.j) > TOO_LONG_FROM_TARGET and
+       math.abs(nearest_in_actual.j - subcell.j) > TOO_LONG_FROM_TARGET)) and future_offset then
     disable_longer_way()
   end
   last_target_cell = target_cell
-  subcell = get_robot_cell(matrix)
   if get_cell_state(matrix, subcell) ~= CELL_STATE.VISITABLE then
     set_cell_state(matrix, subcell, CELL_STATE.VISITABLE)
   end
@@ -107,7 +115,8 @@ function move_following_tree(actual_cell, target_cell, coming_back, ending)
         possible_new_target_subcell = get_new_target_cell(future_offset, matrix)
         log(abs_dir_to_string(get_abs_dir_from_cells(actual_cell, target_cell)), cell_to_string(subcell), "->", cell_to_string(possible_new_target_subcell))
         if get_cell_state(matrix, possible_new_target_subcell) == CELL_STATE.VISITABLE and
-            is_abs_dir_available(get_abs_dir_from_cells(actual_cell, target_cell)) then
+            is_abs_dir_available(get_abs_dir_from_cells(actual_cell, target_cell)) and
+            get_quadrant_from_cells(target_cell, possible_new_target_subcell) ~= QUADRANT.OUT then
           new_target_subcell = possible_new_target_subcell
           assert(get_quadrant_from_cells(target_cell, new_target_subcell) ~= QUADRANT.OUT, 
                   quad_to_string(get_quadrant_from_cells(target_cell, new_target_subcell)))-- TODO
