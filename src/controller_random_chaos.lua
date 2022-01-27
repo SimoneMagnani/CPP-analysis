@@ -1,6 +1,5 @@
 require "location"
 require "utility"
-require "directions"
 
 N_CELLS_TO_REMEMBER = 0 --Defines how many steps need the robot to consider a cell visitable again
 RANDOM = false          --Defines if direction is choosen random or caotically
