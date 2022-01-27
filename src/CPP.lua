@@ -13,17 +13,12 @@ online = true
 --[[ This function is executed every time you press the 'execute'
      button ]]
 function init()
-  left_v = robot.random.uniform(0,MAX_VELOCITY)
-  right_v = robot.random.uniform(0,MAX_VELOCITY)
-  robot.wheels.set_velocity(left_v,right_v)
-  n_steps = 0
-  robot.leds.set_all_colors("black")
+  already_done = false
   matrix = create_matrix(30, 30, function () return { value = 0 } end)
-  --matrix = create_matrix(30,30)
   how_init_state = online and
                           function (i,j) return CELL_STATE.UNKNOWN end or
                           function (i,j)
-                            if i >= 7 and i <= 19 and j >= 7 and j <= 19 then     --central obstacle
+                            if i >= 12 and i <= 19 and j >= 12 and j <= 19 then     --central obstacle
                               return CELL_STATE.UNVISITABLE
                             elseif i >= 5 and i <= 6 and j >= 5 and j <= 6 then     --up-left obstacle
                               return CELL_STATE.UNVISITABLE
@@ -35,17 +30,20 @@ function init()
                               return CELL_STATE.UNVISITABLE
                             end
                             return CELL_STATE.VISITING
-                          end --TODO offline methods
+                          end
   init_cell_state(matrix, how_init_state)
   init_controller(matrix, online)
-  init_checkpoints(1,33,50,80,87,88,89,90,91,100)
+  init_checkpoints(1,33,50,80,87,88,89,90,91)
 end
 
 --[[ This function is executed at each time step
      It must contain the logic of your controller ]]
 function step()
   if is_simulation_ended(matrix) or controller_ended() then
-    --log(coverage_percentage(matrix))
+    if not already_done then
+      already_done = true
+      on_end()
+    end
     turn_clock()
     return
   end
