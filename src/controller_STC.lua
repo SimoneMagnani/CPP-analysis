@@ -97,7 +97,6 @@ function stc(couple)
     else
       move_following_tree(actual, target, true, true)
       if is_submovement_ended() then
-        print_in()
         table.remove(stack)
       end
     end

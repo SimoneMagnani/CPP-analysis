@@ -5,7 +5,7 @@ require "location"
 require "directions"
 require "cell_state"
 
-require "controller_online_STC"
+require "controller_STC"
 --require "controller_random_chaos"
 
 online = true
