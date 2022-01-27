@@ -19,6 +19,13 @@ NUMBER_TO_DIRECTION = {
   DIRECTION.RIGHT,
 }
 
+NUMBER_TO_ABS_DIR = {
+  ABS_DIRECTION.NORTH,
+  ABS_DIRECTION.WEST,
+  ABS_DIRECTION.SOUTH,
+  ABS_DIRECTION.EAST,
+}
+
 DIRECTION_TO_COORD = { -- non è direction TODO
   create_cell(-1,0),
   create_cell(0,-1),
@@ -108,6 +115,11 @@ end
 function cast_to_direction(index)
   assert(index >= 1 and index <= N_DIRECTIONS)
   return NUMBER_TO_DIRECTION[index]
+end
+
+function cast_to_abs_dir(index)
+  assert(index >= 1 and index <= N_DIRECTIONS)
+  return NUMBER_TO_ABS_DIR[index]
 end
 
 function dir_to_string(dir)
