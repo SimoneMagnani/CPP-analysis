@@ -54,27 +54,25 @@ end
 
 function move_following_tree(actual_cell, target_cell, coming_back, ending)
   ending = ending or false
-  subcell = get_robot_cell(matrix)
   assert(not cells_are_equal(actual_cell, target_cell)) -- ~
+  subcell = get_robot_cell(matrix)
   nearest_in_target = nearest_subcell_in_cell(matrix, target_cell)
   nearest_in_actual = nearest_subcell_in_cell(matrix, actual_cell)
   if (not cells_are_equal(target_cell, last_target_cell) or
       cells_are_equal(actual_cell, last_target_cell) or
-      (math.abs(nearest_in_target.i - subcell.i) > TOO_LONG_FROM_TARGET and
-       math.abs(nearest_in_actual.i - subcell.i) > TOO_LONG_FROM_TARGET) or
-      (math.abs(nearest_in_target.j - subcell.j) > TOO_LONG_FROM_TARGET and
-       math.abs(nearest_in_actual.j - subcell.j) > TOO_LONG_FROM_TARGET)) and future_offset then
+      (math.abs(nearest_in_target.i - subcell.i) + math.abs(nearest_in_target.j - subcell.j) > TOO_LONG_FROM_TARGET and
+       math.abs(nearest_in_actual.i - subcell.i) + math.abs(nearest_in_actual.j - subcell.j) > TOO_LONG_FROM_TARGET))
+        and future_offset then
     disable_longer_way()
   end
   last_target_cell = target_cell
+
   if get_cell_state(matrix, subcell) ~= CELL_STATE.VISITABLE then
     set_cell_state(matrix, subcell, CELL_STATE.VISITABLE)
   end
-  --set_cell_visitable(matrix, subcell, true)
-  --log(cell_to_string(actual_cell), " -> ", cell_to_string(target_cell), "from ", cell_to_string(subcell))
+
   target_subcell = nil
   if abs_dir_normal and abs_dir_parallel then
-    log(cell_to_string(subcell))
     walk_near_wall()
     return true
   elseif future_offset then   -- same as above
@@ -82,19 +80,13 @@ function move_following_tree(actual_cell, target_cell, coming_back, ending)
   else
     target_subcell = default_calc_target_subcell(actual_cell, target_cell, ending)
   end
-  --[[if cells_are_equal(actual_cell, create_cell(6,3)) then
-    log(cell_to_string(subcell)," in ", quad_to_string(quad)," => ", cell_to_string(target_subcell), " in ", quad_to_string(get_quadrant_from_cells(actual_cell, target_subcell)))
-  end]]
-  --target_subcell = get_new_target_cell(create_cell(0,-1),matrix)
-  --log("tar: ",cell_to_string(target_subcell))
+  
   abs_dir = get_abs_dir_from_cells(subcell, target_subcell)
-  --dir = get_dir_from_absolute(abs_dir)
   if get_cell_state(matrix, target_subcell) == CELL_STATE.UNKNOWN then
     set_cell_state(matrix, target_subcell, is_abs_dir_available(abs_dir) and CELL_STATE.VISITING or CELL_STATE.UNVISITABLE)
   end
   target_state = get_cell_state(matrix, target_subcell)
   if target_state == CELL_STATE.VISITABLE or (target_state == CELL_STATE.VISITING and is_abs_dir_available(abs_dir)) then
-    --log("going to", cell_to_string(target_subcell))
     is_reachable = go_to_target(matrix, target_subcell)
     if not is_reachable then
       if target_state == CELL_STATE.VISITABLE then
@@ -183,34 +175,34 @@ function walk_near_wall()
     abs_dir_parallel = opposite_direction(abs_dir_normal)
     abs_dir_normal = tmp_dir
   end]]
+
   if not (turn_direction_counterclock(abs_dir_parallel) == abs_dir_normal or
           turn_direction_clock(abs_dir_parallel) == abs_dir_normal) then
     if not is_abs_dir_available(turn_direction_counterclock(abs_dir_normal)) then
-      abs_dir_parallel = turn_direction_counterclock(abs_dir_normal)
-    elseif not is_abs_dir_available(turn_direction_clock(abs_dir_normal)) then
       abs_dir_parallel = turn_direction_clock(abs_dir_normal)
+    else
+      abs_dir_parallel = turn_direction_counterclock(abs_dir_normal)
     end
   end
-    
+
   assert(turn_direction_counterclock(abs_dir_parallel) == abs_dir_normal or
           turn_direction_clock(abs_dir_parallel) == abs_dir_normal,
           abs_dir_to_string(abs_dir_parallel) .. abs_dir_to_string(abs_dir_normal))
+
   if is_abs_dir_available(abs_dir_parallel) then
     offset = abs_direction_to_offset(abs_dir_parallel)
   else
     offset = abs_direction_to_offset(abs_dir_normal)
   end
   go_to_target(matrix, get_new_target_cell(offset, matrix))
-  --[[exist_obj_near = false
-  for _, val in pairs(robot.proximity) do
-    if object_near(val.value, 1) then
-      exist_obj_near = true
-    end
-  end]]
-  if is_abs_dir_available(abs_dir_normal) then
+
+  counterclock = turn_direction_counterclock(abs_dir_parallel) == abs_dir_normal
+  if is_abs_dir_available(abs_dir_normal) and
+        ((counterclock and is_shifted_counterclock_abs_dir_available(abs_dir_normal)) or
+        (not counterclock and is_shifted_clock_abs_dir_available(abs_dir_normal))) then
     log("disable wall")
-    --abs_dir_parallel = nil
-    abs_dir_normal = nil
+    abs_dir_parallel = nil
+    --abs_dir_normal = nil
   end
 end
 
@@ -335,14 +327,8 @@ function quad_to_string(quad)
           quad == QUADRANT.OUT and "Out of Cell"
 end
 
-function print_in()
-  log(cell_to_string(get_robot_cell(matrix)))
-  print(matrix_to_string(matrix, function (cell) return cell.value end))
-  log(coverage_percentage(matrix))
-end
-
 function is_submovement_ended()
-  for _, subcell in ipairs(ending_condition) do
+  for _, subcell in pairs(ending_condition) do
     state = get_cell_state(matrix, subcell)
     if not (state == CELL_STATE.VISITABLE or
         state == CELL_STATE.UNVISITABLE or 
