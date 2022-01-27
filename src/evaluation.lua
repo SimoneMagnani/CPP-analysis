@@ -25,7 +25,7 @@ function print_simulation_on_checkpoint(matrix)
     if not checkpoint[i] and coverage >= i then
       checkpoint[i] = true
       --do stuff
-      print("checkpoint ",i ," done with cov: ", coverage)
+      print("checkpoint "..i.." done with cov: "..coverage)
       print(coverage)
       print(os.clock() - init_time)
       print(matrix_to_string(matrix, function (cell) return cell.value end))
