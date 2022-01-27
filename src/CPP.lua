@@ -5,10 +5,12 @@ require "location"
 require "directions"
 require "cell_state"
 
-require "controller_STC"
+--require "controller_STC"
 --require "controller_random_chaos"
+require "controller_wavefront"
 
-online = true
+
+online = false
 
 --[[ This function is executed every time you press the 'execute'
      button ]]
