@@ -1,4 +1,4 @@
-require "location" --to remove
+require "matrix"
 
 CELL_STATE = {
   UNKNOWN = 0,
