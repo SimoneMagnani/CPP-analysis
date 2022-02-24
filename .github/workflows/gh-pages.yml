@@ -1,0 +1,32 @@
+name: Update GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+    paths: 
+      - docs/**
+      - .github/workflows/gh-pages.yml
+jobs:
+  update-gh-pages:
+    name: Generate and upload new GitHub Pages
+    runs-on: ubuntu-latest
+    concurrency: update-gh-pages
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Run action
+        uses: ldeluigi/markdown-docs@v0
+        with:
+          src: docs/
+          dst: ./gh-pages
+          icon: chat-plus
+          primary-color: white
+          secondary-color: indigo
+      - name: Deploy GH Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./gh-pages
