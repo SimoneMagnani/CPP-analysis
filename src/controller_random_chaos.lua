@@ -16,6 +16,7 @@ end
 
 function init_controller(m, online)
   assert(online, "Random controller must be online_controller")
+  unvisitable_cells = {}
   matrix = m
   can_continue = true
   target_cell = get_next_target()
