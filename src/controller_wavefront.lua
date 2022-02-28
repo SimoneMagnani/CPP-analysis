@@ -93,7 +93,6 @@ function get_next_target()
     neighbours = get_visitable_neighbours(get_robot_cell(matrix), CELL_STATE.VISITABLE)
     last_wavefront_value = max_cell_value
     check_value = function(val, last_val) return (val <= last_val) end
-    printer = true
   else
     last_wavefront_value = 0
     check_value = function(val, last_val) return (val >= last_val) end
@@ -101,9 +100,6 @@ function get_next_target()
   for _,cell in pairs(neighbours) do
     assert(cell, "cell nil")
     possible_value = get_wavefront_value(cell)
-    if printer then
-      --log(cell_to_string(get_robot_cell(matrix)), "->", cell_to_string(cell), " ", state_to_string(get_cell_state(matrix, cell)), possible_value, " ", check_value(possible_value, last_wavefront_value))
-    end
     if check_value(possible_value, last_wavefront_value) then
         -- if are equals, toss the coin
       if possible_value ~= last_wavefront_value or robot.random.bernoulli() then
