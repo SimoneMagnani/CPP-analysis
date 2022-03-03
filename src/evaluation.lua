@@ -10,6 +10,7 @@ function init_checkpoints(...)
   for k,v in pairs(args) do
     checkpoint[v] = false
   end
+  n_steps = 0
   init_time = os.clock()
 end
 
