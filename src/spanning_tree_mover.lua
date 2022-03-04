@@ -98,27 +98,26 @@ function move_following_tree(actual_cell, target_cell, coming_back, ending)
     return is_reachable
   else
     offset_cell = get_offset_from_cells(actual_cell, target_cell)
-    log(cell_to_string(actual_cell), "->", cell_to_string(target_cell))
-    log("ho un muro ", abs_dir_to_string(abs_dir)," da", cell_to_string(get_robot_cell(matrix)), "->", cell_to_string(target_subcell))
+    --log(cell_to_string(actual_cell), "->", cell_to_string(target_cell))
+    --log("ho un muro ", abs_dir_to_string(abs_dir)," da", cell_to_string(get_robot_cell(matrix)), "->", cell_to_string(target_subcell))
     if next_target_subcell and not next_target_subcell.visited then
-      log(cell_to_string(offset_cell))
-      log("two obstacles near me, can't continue",   "next_t:", cell_to_string(next_target_subcell), "fut_t:", cell_to_string(future_target_subcell), " last_t", cell_to_string(last_subcell))
+      --log(cell_to_string(offset_cell))
+      --log("two obstacles near me, can't continue",   "next_t:", cell_to_string(next_target_subcell), "fut_t:", cell_to_string(future_target_subcell), " last_t", cell_to_string(last_subcell))
       if coming_back then
         possible_new_target_subcell = get_new_target_cell(future_offset, matrix)
-        log(abs_dir_to_string(get_abs_dir_from_cells(actual_cell, target_cell)), cell_to_string(subcell), "->", cell_to_string(possible_new_target_subcell))
+        --log(abs_dir_to_string(get_abs_dir_from_cells(actual_cell, target_cell)), cell_to_string(subcell), "->", cell_to_string(possible_new_target_subcell))
         if get_cell_state(matrix, possible_new_target_subcell) == CELL_STATE.VISITABLE and
             is_abs_dir_available(get_abs_dir_from_cells(actual_cell, target_cell)) and
             get_quadrant_from_cells(target_cell, possible_new_target_subcell) ~= QUADRANT.OUT then
           new_target_subcell = possible_new_target_subcell
-          assert(get_quadrant_from_cells(target_cell, new_target_subcell) ~= QUADRANT.OUT, 
-                  quad_to_string(get_quadrant_from_cells(target_cell, new_target_subcell)))-- TODO
+          --assert(get_quadrant_from_cells(target_cell, new_target_subcell) ~= QUADRANT.OUT, quad_to_string(get_quadrant_from_cells(target_cell, new_target_subcell)))-- TODO
         else
           function calc_abs_dirs(best, worst) 
             abs_dir_parallel = abs_dir_parallel and opposite_direction(abs_dir_parallel) or get_abs_dir_from_cells(best, subcell) --if parallel exists take opposite
             abs_dir_normal = get_abs_dir_from_cells(subcell, worst)
           end
           choose_best_cell_to_walk_near(first_target_subcell, next_target_subcell, calc_abs_dirs)
-          log(state_to_string(get_cell_state(matrix, first_target_subcell)), state_to_string(get_cell_state(matrix, next_target_subcell)))
+          --log(state_to_string(get_cell_state(matrix, first_target_subcell)), state_to_string(get_cell_state(matrix, next_target_subcell)))
           walk_near_wall()
         end
         return true
@@ -127,7 +126,7 @@ function move_following_tree(actual_cell, target_cell, coming_back, ending)
       return false
     elseif future_target_subcell and not future_target_subcell.visited then
       if cells_are_equal(get_offset_from_cells(subcell, future_target_subcell), offset_cell) then
-        log("two obstacles as wall, can't pass it :",   "next_t:", cell_to_string(next_target_subcell), "fut_t:", cell_to_string(future_target_subcell), " last_t", cell_to_string(last_subcell), cell_to_string(offset_cell))
+        --log("two obstacles as wall, can't pass it :",   "next_t:", cell_to_string(next_target_subcell), "fut_t:", cell_to_string(future_target_subcell), " last_t", cell_to_string(last_subcell), cell_to_string(offset_cell))
         if coming_back then
           function calc_abs_dirs(best, worst) 
             abs_dir_parallel = get_abs_dir_from_cells(worst, best)
@@ -140,18 +139,18 @@ function move_following_tree(actual_cell, target_cell, coming_back, ending)
         disable_longer_way()
         return false
       else
-        log("two obstacles as wall, but don't have to pass it")
+        --log("two obstacles as wall, but don't have to pass it")
         future_target_subcell = nil
         return true
       end
     elseif future_offset then
       -- found an other obstacle
-      log("an other obstacle, can redo same as bef")
+      --log("an other obstacle, can redo same as bef")
       enable_longer_way(target_subcell, offset_cell, abs_dir)
       return true
     else
       -- found first obstale
-      log("enable longer way cause obstacle")
+      --log("enable longer way cause obstacle")
       enable_longer_way(target_subcell, offset_cell, abs_dir)
       return true
     end
@@ -200,7 +199,7 @@ function walk_near_wall()
   if is_abs_dir_available(abs_dir_normal) and
         ((counterclock and is_shifted_counterclock_abs_dir_available(abs_dir_normal)) or
         (not counterclock and is_shifted_clock_abs_dir_available(abs_dir_normal))) then
-    log("disable wall")
+    --log("disable wall")
     abs_dir_parallel = nil
     --abs_dir_normal = nil
   end
@@ -210,29 +209,29 @@ function longer_way(actual_cell, target_cell, ending)
   subcell = get_robot_cell(matrix)
   if next_target_subcell and not next_target_subcell.visited then
     if cells_are_equal(next_target_subcell, subcell) then
-      log("reached next_target_subcell ", cell_to_string(next_target_subcell), " go to future", cell_to_string(future_target_subcell))
+      --log("reached next_target_subcell ", cell_to_string(next_target_subcell), " go to future", cell_to_string(future_target_subcell))
       next_target_subcell.visited = true
       return future_target_subcell
     elseif new_target_subcell then
-      log("exit from wrong cell bef next_t ", cell_to_string(get_robot_cell(matrix)), '->',cell_to_string(get_new_target_cell(future_offset, matrix)))
+      --log("exit from wrong cell bef next_t ", cell_to_string(get_robot_cell(matrix)), '->', cell_to_string(get_new_target_cell(future_offset, matrix)))
       return new_target_subcell
     else
-      log("going to next_target_subcell", cell_to_string(next_target_subcell))
+      --log("going to next_target_subcell", cell_to_string(next_target_subcell))
       return next_target_subcell
     end
   elseif future_target_subcell and not future_target_subcell.visited then
     if cells_are_equal(future_target_subcell, subcell) then
       future_target_subcell.visited = true
       if cells_are_equal(future_offset, get_offset_from_cells(actual_cell, target_cell)) then -- have to exit from the wrong point
-        log("have to exit from wrong point", cell_to_string(get_robot_cell(matrix)), '->',cell_to_string(get_new_target_cell(future_offset, matrix)))
+        --log("have to exit from wrong point", cell_to_string(get_robot_cell(matrix)), '->', cell_to_string(get_new_target_cell(future_offset, matrix)))
         return get_new_target_cell(future_offset, matrix)
       else
-        log("follow default movement to continue then exit",cell_to_string(actual_cell),"->",cell_to_string(target_cell))
+        --log("follow default movement to continue then exit",cell_to_string(actual_cell),"->",cell_to_string(target_cell))
         disable_longer_way()
         return default_calc_target_subcell(actual_cell, target_cell, ending)
       end
     else
-      log("going to future_target_subcell", cell_to_string(future_target_subcell))
+      --log("going to future_target_subcell", cell_to_string(future_target_subcell))
       return future_target_subcell
     end
   else
@@ -242,19 +241,19 @@ function longer_way(actual_cell, target_cell, ending)
         -- se sono nella cella sono ma non sono ancora uscito posso uscire
         return get_new_target_cell(get_offset_from_cells(actual_cell, target_cell), matrix)
       else
-        log("past the obstacle, restart normal cycle")
+        --log("past the obstacle, restart normal cycle")
         disable_longer_way()
         return default_calc_target_subcell(actual_cell, target_cell, ending)
       end
     else
-      log("going to exit")
+      --log("going to exit")
       return last_subcell
     end
   end
 end
 
 function disable_longer_way()
-  log("disable")
+  --log("disable")
   first_target_subcell = nil
   future_offset = nil
   last_subcell = nil
@@ -272,12 +271,8 @@ function enable_longer_way(target_subcell, last_offset, obstacle_abs_dir)
   next_target_subcell = get_new_target_cell(abs_direction_to_offset(turn_direction_counterclock(obstacle_abs_dir)), matrix)
   future_target_subcell = sum_cells(next_target_subcell, abs_direction_to_offset(obstacle_abs_dir))
   last_subcell = sum_cells(future_target_subcell, future_offset) -- TODO Solo se deve uscire
-  log(state_to_string(get_cell_state(matrix, {i=5,j=12})),
-      state_to_string(get_cell_state(matrix,get_robot_cell(matrix))),
-      state_to_string(get_cell_state(matrix,next_target_subcell)),
-      state_to_string(get_cell_state(matrix,future_target_subcell)),
-      state_to_string(get_cell_state(matrix,last_subcell)) )
-  log("next_t:", cell_to_string(next_target_subcell), "fut_t:", cell_to_string(future_target_subcell), " last_t", cell_to_string(last_subcell))
+  --log(state_to_string(get_cell_state(matrix, {i=5,j=12})), state_to_string(get_cell_state(matrix,get_robot_cell(matrix))), state_to_string(get_cell_state(matrix,next_target_subcell)), state_to_string(get_cell_state(matrix,future_target_subcell)), state_to_string(get_cell_state(matrix,last_subcell)) )
+  --log("next_t:", cell_to_string(next_target_subcell), "fut_t:", cell_to_string(future_target_subcell), " last_t", cell_to_string(last_subcell))
 end
 
 function get_quadrant_from_cells(cell, subcell)
