@@ -10,13 +10,13 @@
     <experiment length="0"
                 ticks_per_second="15"
      />
-<!--     You may want to set the seed of the RNG by: random_seed = "1" (or any n>0) in experiment  random_seed="984374" -->
+<!--     You may want to set the seed of the RNG by: random_seed = "1" (or any n>0) in experiment-->
   </framework>
   
   <!-- ****************** -->
   <!-- * Visualization * -->
   <!-- ****************** -->
-  <visualization>
+  <!--visualization>
     <qt-opengl lua_editor="false">
       <camera>
         <placement idx="0" position="-2.0767,0.015,2.74921" look_at="-1.59254,0.015,1.87423" lens_focal_length="20" />
@@ -36,7 +36,7 @@
       </actuators>
       <sensors>
         <differential_steering implementation="default" noise_level="0.0" />
-        <footbot_proximity implementation="default" show_rays="false" noise_level="0.0" />
+        <footbot_proximity implementation="default" show_rays="false" noise_level="0.1" />
         <!--footbot_light implementation="rot_z_only" show_rays="false" noise_level="0.0" /-->
         <!--footbot_motor_ground implementation="rot_z_only" noise_level="0.0" /-->
         <positioning implementation="default" noise_level="0.0" />
@@ -76,10 +76,19 @@
     <box id="o" size="0.1, 0.1, 0.2" movable="false">
       <body position="0.7,0.7,0" orientation="0,0,0" />
     </box>
+    <!--box id="1o" size="0.1, 0.1, 0.2" movable="false">
+      <body position="1.4,1.4,0" orientation="0,0,0" />
+    </box>
+    <box id="2o" size="0.1, 0.1, 0.2" movable="false">
+      <body position="0.7,1.4,0" orientation="0,0,0" />
+    </box>
+    <box id="3o" size="0.1, 0.1, 0.2" movable="false">
+      <body position="1.4,0.7,0" orientation="0,0,0" />
+    </box>
     
     <box id="o1" size="0.1, 0.1, 0.2" movable="false">
       <body position="3.5,0.7,0" orientation="0,0,0" />
-    </box>
+    </box-->
     
     <box id="ocenter" size="1, 1, 0.2" movable="false">
       <body position="2,2,0" orientation="0,0,0" />
