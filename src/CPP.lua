@@ -12,7 +12,7 @@ require "controller_wavefront"
 
 online = false
 loop_n = 1
-LOOP_TIMES = 10
+LOOP_TIMES = 6
 already_done = false
 
 --[[ This function is executed every time you press the 'execute'
@@ -53,10 +53,10 @@ function step()
   if is_simulation_ended(matrix) or controller_ended() then
     if not already_done then
       already_done = true
+      loop_n = loop_n + 1
       if loop_n <= LOOP_TIMES then
         reset()
       end
-      loop_n = loop_n + 1
     end
     turn_clock()
     return
