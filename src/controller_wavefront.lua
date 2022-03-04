@@ -21,7 +21,7 @@ function init_controller(m, online)
   max_cell_value = #matrix * #matrix[1] + 1
   exec_on_each_cell(matrix, function (cell) cell[WAVEFRONT_INDEX] = max_cell_value end)
   final_cell = choose_final_cell(matrix) --needs to know the state
-  log(cell_to_string(final_cell))
+  --log(cell_to_string(final_cell))
   set_wavefront_value(final_cell, 0)
   need_to_update_neighbours = {}
   table.insert(need_to_update_neighbours, final_cell)
@@ -37,7 +37,10 @@ function choose_final_cell(matrix)
   repeat
     i = robot.random.uniform_int(1, #matrix + 1)
     j = robot.random.uniform_int(1, #matrix[1] + 1)
-    proposed_cell = create_cell(i,j)
+    --if actual_cell.i > #matrix / 2 then i = 1 else i = #matrix end
+    --if actual_cell.j > #matrix[1] / 2 then j = 1 else j = #matrix[1] end
+    proposed_cell = create_cell(i, j)
+    --proposed_cell = create_cell(actual_cell.i + 2, actual_cell.j + 2)
   until(get_cell_state(matrix, proposed_cell) == CELL_STATE.VISITING and not cells_are_equal(actual_cell, proposed_cell))
   assert(get_cell_state(matrix, proposed_cell) == CELL_STATE.VISITING and not cells_are_equal(actual_cell, proposed_cell))
   return proposed_cell
@@ -54,9 +57,9 @@ function robot_step()
       -- If the robot reached the target, it needs to update
       if cells_are_equal(target_cell, final_cell) and #(get_visitable_neighbours(final_cell, CELL_STATE.VISITING)) == 0 then
         neighbours = get_visitable_neighbours(final_cell, CELL_STATE.VISITING)
-        log(cell_to_string(final_cell), #neighbours)
-        print(matrix_to_string(matrix, function (cell) return cell.value end))
-          print(matrix_to_string(matrix, function (cell) return cell.wavefront end))
+        --log(cell_to_string(final_cell), #neighbours)
+        --print(matrix_to_string(matrix, function (cell) return cell.value end))
+        --print(matrix_to_string(matrix, function (cell) return cell.wavefront end))
         done = true
         turn_clock()
       else
