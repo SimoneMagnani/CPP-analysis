@@ -77,7 +77,7 @@ function is_valid_dir(dir)
     target = get_new_target_cell(direction_robot_to_offset(dir), matrix)
     for k,v in pairs(unvisitable_cells) do
       -- If the target is equal to an unvisitable cell return false otherwise true
-      if are_cells_equal(v,target) then
+      if cells_are_equal(v,target) then
         return false
       end
     end
