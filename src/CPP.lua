@@ -11,6 +11,9 @@ require "controller_wavefront"
 
 
 online = false
+loop_n = 1
+LOOP_TIMES = 10
+already_done = false
 
 --[[ This function is executed every time you press the 'execute'
      button ]]
@@ -24,6 +27,12 @@ function init()
                               return CELL_STATE.UNVISITABLE
                             elseif i >= 5 and i <= 6 and j >= 5 and j <= 6 then     --up-left obstacle
                               return CELL_STATE.UNVISITABLE
+                            --[[elseif i >= 10 and i <= 11 and j >= 5 and j <= 6 then --up-left up-right obstacle
+                              return CELL_STATE.UNVISITABLE
+                            elseif i >= 5 and i <= 6 and j >= 10 and j <= 11 then     --up-left down-left obstacle
+                              return CELL_STATE.UNVISITABLE
+                            elseif i >= 10 and i <= 11 and j >= 10 and j <= 11 then   --up-left down-right obstacle
+                              return CELL_STATE.UNVISITABLE]]
                             elseif i >= 5 and i <= 6 and j >= 26 and j <= 27 then   --up-right obstacle
                               return CELL_STATE.UNVISITABLE
                             elseif i >= 26 and i <= 27 and j >= 5 and j <= 6 then   --down-left obstacle
@@ -35,7 +44,7 @@ function init()
                           end
   init_cell_state(matrix, how_init_state)
   init_controller(matrix, online)
-  init_checkpoints(1,33,50,80,87,88,89,90,91)
+  init_checkpoints(1,33,50,80,87,88,89,90)
 end
 
 --[[ This function is executed at each time step
@@ -44,7 +53,10 @@ function step()
   if is_simulation_ended(matrix) or controller_ended() then
     if not already_done then
       already_done = true
-      on_end()
+      if loop_n <= LOOP_TIMES then
+        reset()
+      end
+      loop_n = loop_n + 1
     end
     turn_clock()
     return
@@ -53,8 +65,6 @@ function step()
   update_matrix_on_location(matrix)
   step_evaluation(matrix)
 end
-
-
 
 --[[ This function is executed every time you press the 'reset'
      button in the GUI. It is supposed to restore the state
