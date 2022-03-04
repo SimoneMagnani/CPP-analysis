@@ -24,11 +24,11 @@ function print_simulation_on_checkpoint(matrix)
   for i,v in pairs(checkpoint) do
     if not checkpoint[i] and coverage >= i then
       checkpoint[i] = true
-      --do stuff
-      print("checkpoint "..i.." done with cov: "..coverage)
-      print(coverage)
-      print(os.clock() - init_time)
-      print(matrix_to_string(matrix, function (cell) return cell.value end))
+      cell_visited = 0
+      exec_on_each_cell(matrix, function (cell) cell_visited = cell_visited + cell.value end)
+      --print("checkpoint "..i.." done with cov: "..coverage)
+      print(i..", "..coverage..", "..n_steps..", "..os.clock() - init_time..", "..cell_visited)
+      --print(matrix_to_string(matrix, function (cell) return cell.value end))
     end
   end
 end
